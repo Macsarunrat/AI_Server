@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Request, UploadFile, File, HTTPException
-from schemas.prediction import ImagePredictionBefore, PredictionResponse
+from fastapi import APIRouter, Request, UploadFile, File, HTTPException, status
+from schemas.predictionBefore import ImagePredictionBefore, PredictionResponse
 from PIL import Image
 import io
 import base64
@@ -17,7 +17,7 @@ def image_to_base64(image: Image.Image) -> str:
 
 
 
-@router.post('/predict/before', response_model=ImagePredictionBefore)
+@router.post('/predict', response_model=PredictionResponse,status_code=status.HTTP_200_OK)
 async def predictMenu(request: Request,file: UploadFile = File(...)):
     try:
         model = request.state.models['classificationMenuModel']
@@ -34,10 +34,10 @@ async def predictMenu(request: Request,file: UploadFile = File(...)):
 
             for box in boxes:
 
-                x1, y1, x2, y2 =map(int.box.xyxy[0].tolist())
+                x1, y1, x2, y2 =map(int, box.xyxy[0].tolist())
 
                 cls_id = int(box.cls[0])
-                class_name = result.name[cls_id]
+                class_name = result.names[cls_id]
                 conf = float(box.conf[0])
 
                 cropped_img = originalImage.crop((x1, y1, x2, y2))
@@ -50,7 +50,7 @@ async def predictMenu(request: Request,file: UploadFile = File(...)):
                 )
                 outputList.append(prediction)
 
-            return PredictionResponse(prediction = outputList)
+        return PredictionResponse(predictions = outputList)
     except Exception as e:
         print(f'Error {e}')
         raise HTTPException(status_code=500,detail=str(e))

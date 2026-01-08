@@ -8,11 +8,8 @@ class ImagePredictionBefore(BaseModel):
     
 
 class PredictionResponse(BaseModel):
-    predictionImage : List[ImagePredictionBefore]
+    predictions : List[ImagePredictionBefore]
 
 
-class ImageCropped(BaseModel):
-    imagePerBowlData : Optional[str] = None
-    remainingPercentage : float
-    isRice : bool
+
 
